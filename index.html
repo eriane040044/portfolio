@@ -123,6 +123,33 @@
             font-size: 48px;
             box-shadow: 0 8px 24px rgba(255, 179, 71, 0.3);
             position: relative;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .avatar-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .avatar-wrapper .avatar-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            font-size: 0.7rem;
+            padding: 4px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .avatar-wrapper:hover .avatar-overlay {
+            opacity: 1;
         }
 
         .avatar-wrapper .edit-avatar {
@@ -261,12 +288,8 @@
             position: absolute;
             right: 12px;
             top: 12px;
-            display: none;
-            gap: 8px;
-        }
-
-        .education-item:hover .edit-controls {
             display: flex;
+            gap: 8px;
         }
 
         .edit-btn, .delete-btn {
@@ -473,20 +496,12 @@
             margin-bottom: 12px;
         }
 
-        .work-category.prose {
-            background: rgba(135, 206, 235, 0.2);
-            color: #3498DB;
-        }
-
-        .work-category.poem {
-            background: rgba(255, 182, 193, 0.2);
-            color: #E74C6A;
-        }
-
-        .work-category.award {
-            background: rgba(255, 215, 0, 0.2);
-            color: #DAA520;
-        }
+        .work-category.cat-blue { background: rgba(135, 206, 235, 0.2); color: #3498DB; }
+        .work-category.cat-pink { background: rgba(255, 182, 193, 0.2); color: #E74C6A; }
+        .work-category.cat-gold { background: rgba(255, 215, 0, 0.2); color: #DAA520; }
+        .work-category.cat-green { background: rgba(152, 251, 152, 0.2); color: #2ECC71; }
+        .work-category.cat-orange { background: rgba(255, 179, 71, 0.2); color: #E6A23C; }
+        .work-category.cat-purple { background: rgba(186, 85, 211, 0.2); color: #9B59B6; }
 
         .work-title {
             font-size: 1.25rem;
@@ -686,20 +701,12 @@
             margin-bottom: 16px;
         }
 
-        .view-content .view-category.prose {
-            background: rgba(135, 206, 235, 0.2);
-            color: #3498DB;
-        }
-
-        .view-content .view-category.poem {
-            background: rgba(255, 182, 193, 0.2);
-            color: #E74C6A;
-        }
-
-        .view-content .view-category.award {
-            background: rgba(255, 215, 0, 0.2);
-            color: #DAA520;
-        }
+        .view-content .view-category.cat-blue { background: rgba(135, 206, 235, 0.2); color: #3498DB; }
+        .view-content .view-category.cat-pink { background: rgba(255, 182, 193, 0.2); color: #E74C6A; }
+        .view-content .view-category.cat-gold { background: rgba(255, 215, 0, 0.2); color: #DAA520; }
+        .view-content .view-category.cat-green { background: rgba(152, 251, 152, 0.2); color: #2ECC71; }
+        .view-content .view-category.cat-orange { background: rgba(255, 179, 71, 0.2); color: #E6A23C; }
+        .view-content .view-category.cat-purple { background: rgba(186, 85, 211, 0.2); color: #9B59B6; }
 
         .view-content h2 {
             font-size: 1.75rem;
@@ -729,6 +736,87 @@
             display: flex;
             align-items: center;
             gap: 6px;
+        }
+
+        .filter-tabs-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .filter-tabs {
+            flex: 1;
+            flex-wrap: wrap;
+        }
+
+        .manage-categories-btn {
+            padding: 10px 16px;
+            border-radius: 12px;
+            border: none;
+            background: rgba(255, 255, 255, 0.6);
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .manage-categories-btn:hover {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--text-primary);
+        }
+
+        .category-manage-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 12px;
+        }
+
+        .category-manage-item .cat-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .category-manage-item .color-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+        }
+
+        .color-dot.cat-blue { background: #3498DB; }
+        .color-dot.cat-pink { background: #E74C6A; }
+        .color-dot.cat-gold { background: #DAA520; }
+        .color-dot.cat-green { background: #2ECC71; }
+        .color-dot.cat-orange { background: #E6A23C; }
+        .color-dot.cat-purple { background: #9B59B6; }
+
+        .color-picker {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .color-option {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .color-option.selected {
+            border-color: var(--text-primary);
+            transform: scale(1.15);
         }
 
         @media (max-width: 1024px) {
@@ -774,10 +862,13 @@
     <div class="container">
         <aside class="sidebar glass">
             <div class="profile-section">
-                <div class="avatar-wrapper">
-                    👤
-                    <span class="edit-avatar" onclick="openEditProfile()">✏️</span>
+                <div class="avatar-wrapper" id="avatarWrapper" onclick="document.getElementById('avatarInput').click()">
+                    <span id="avatarPlaceholder">👤</span>
+                    <img id="avatarImg" style="display:none;" alt="头像">
+                    <div class="avatar-overlay">更换头像</div>
+                    <span class="edit-avatar" onclick="event.stopPropagation(); openEditProfile()">✏️</span>
                 </div>
+                <input type="file" id="avatarInput" accept="image/*" style="display:none;" onchange="handleAvatarUpload(event)">
                 <div class="profile-name" id="profileName">你的名字</div>
                 <div class="profile-title" id="profileTitle">作家 / 诗人</div>
                 <div class="profile-bio" id="profileBio" onclick="openEditProfile()">点击编辑个人简介...</div>
@@ -811,15 +902,6 @@
             <div class="education-section glass-panel">
                 <div class="section-title">🎓 教育经历</div>
                 <div class="education-list" id="educationList">
-                    <div class="education-item">
-                        <div class="edit-controls">
-                            <button class="edit-btn" onclick="editEducation(this)">✏️</button>
-                            <button class="delete-btn" onclick="deleteEducation(this)">🗑️</button>
-                        </div>
-                        <div class="edu-school">学校名称</div>
-                        <div class="edu-degree">学历 / 专业</div>
-                        <div class="edu-period">20XX - 20XX</div>
-                    </div>
                 </div>
                 <button class="add-btn" onclick="addEducation()">
                     <span>➕</span> 添加教育经历
@@ -847,11 +929,12 @@
                 <span>👆</span> 拖拽卡片调整排列顺序
             </div>
 
-            <div class="filter-tabs">
-                <button class="filter-tab active" data-filter="all" onclick="filterWorks('all')">全部</button>
-                <button class="filter-tab" data-filter="prose" onclick="filterWorks('prose')">散文</button>
-                <button class="filter-tab" data-filter="poem" onclick="filterWorks('poem')">诗歌</button>
-                <button class="filter-tab" data-filter="award" onclick="filterWorks('award')">获奖作品</button>
+            <div class="filter-tabs-wrapper">
+                <div class="filter-tabs" id="filterTabs">
+                </div>
+                <button class="manage-categories-btn" onclick="openCategoryManager()">
+                    <span>⚙️</span> 管理分类
+                </button>
             </div>
 
             <div class="works-grid" id="worksGrid" ondragover="allowDrop(event)" ondrop="dropWork(event)">
@@ -874,9 +957,6 @@
                 <div class="form-group">
                     <label>分类</label>
                     <select id="workCategory" required>
-                        <option value="prose">散文</option>
-                        <option value="poem">诗歌</option>
-                        <option value="award">获奖作品</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -985,10 +1065,49 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="categoryModalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>管理分类</h2>
+                <button class="modal-close" onclick="closeCategoryManager()">✕</button>
+            </div>
+            <div id="categoryManageList" style="margin-bottom: 20px;">
+            </div>
+            <div style="border-top: 1px solid rgba(93,78,55,0.1); padding-top: 20px;">
+                <div class="form-group">
+                    <label>添加新分类</label>
+                    <input type="text" id="newCategoryName" placeholder="例如：策划方案">
+                </div>
+                <div class="form-group">
+                    <label>选择颜色</label>
+                    <div class="color-picker" id="colorPicker">
+                        <div class="color-option cat-blue selected" data-color="blue" onclick="selectColor(this)"></div>
+                        <div class="color-option cat-pink" data-color="pink" onclick="selectColor(this)"></div>
+                        <div class="color-option cat-gold" data-color="gold" onclick="selectColor(this)"></div>
+                        <div class="color-option cat-green" data-color="green" onclick="selectColor(this)"></div>
+                        <div class="color-option cat-orange" data-color="orange" onclick="selectColor(this)"></div>
+                        <div class="color-option cat-purple" data-color="purple" onclick="selectColor(this)"></div>
+                    </div>
+                </div>
+                <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="addCategory()">
+                    <span>➕</span> 添加分类
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let works = [];
         let currentViewId = null;
         let isSorting = false;
+        let categories = [];
+        let selectedColor = 'blue';
+
+        const defaultCategories = [
+            { id: 'prose', name: '散文', color: 'blue' },
+            { id: 'poem', name: '诗歌', color: 'pink' },
+            { id: 'award', name: '获奖作品', color: 'gold' }
+        ];
 
         const defaultProfile = {
             name: '你的名字',
@@ -1007,9 +1126,24 @@
             const savedWorks = localStorage.getItem('portfolioWorks');
             const savedProfile = localStorage.getItem('portfolioProfile');
             const savedEducation = localStorage.getItem('portfolioEducation');
+            const savedCategories = localStorage.getItem('portfolioCategories');
+            const savedAvatar = localStorage.getItem('portfolioAvatar');
 
             if (savedWorks) {
                 works = JSON.parse(savedWorks);
+            }
+
+            if (savedCategories) {
+                categories = JSON.parse(savedCategories);
+            } else {
+                categories = [...defaultCategories];
+                localStorage.setItem('portfolioCategories', JSON.stringify(categories));
+            }
+
+            if (savedAvatar) {
+                document.getElementById('avatarImg').src = savedAvatar;
+                document.getElementById('avatarImg').style.display = 'block';
+                document.getElementById('avatarPlaceholder').style.display = 'none';
             }
 
             if (savedProfile) {
@@ -1028,6 +1162,9 @@
             } else {
                 renderEducation(defaultEducation);
             }
+
+            renderFilterTabs();
+            renderCategoryOptions();
         }
 
         function saveWorks() {
@@ -1057,7 +1194,7 @@
                      draggable="${isSorting ? 'true' : 'false'}" 
                      ondragstart="dragWork(event, ${index})"
                      onclick="viewWork('${work.id}')">
-                    <span class="work-category ${work.category}">${getCategoryName(work.category)}</span>
+                    <span class="work-category cat-${getCategoryColor(work.category)}">${getCategoryName(work.category)}</span>
                     <h3 class="work-title">${work.title}</h3>
                     <p class="work-excerpt">${work.content}</p>
                     <div class="work-meta">
@@ -1071,9 +1208,121 @@
             `).join('');
         }
 
-        function getCategoryName(category) {
-            const names = { prose: '散文', poem: '诗歌', award: '获奖作品' };
-            return names[category] || category;
+        function getCategoryName(categoryId) {
+            const cat = categories.find(c => c.id === categoryId);
+            return cat ? cat.name : categoryId;
+        }
+
+        function getCategoryColor(categoryId) {
+            const cat = categories.find(c => c.id === categoryId);
+            return cat ? cat.color : 'blue';
+        }
+
+        function saveCategories() {
+            localStorage.setItem('portfolioCategories', JSON.stringify(categories));
+        }
+
+        function renderFilterTabs() {
+            const tabsContainer = document.getElementById('filterTabs');
+            const activeFilter = getActiveFilter();
+            tabsContainer.innerHTML = `
+                <button class="filter-tab ${activeFilter === 'all' ? 'active' : ''}" data-filter="all" onclick="filterWorks('all')">全部</button>
+                ${categories.map(cat => `
+                    <button class="filter-tab ${activeFilter === cat.id ? 'active' : ''}" data-filter="${cat.id}" onclick="filterWorks('${cat.id}')">${cat.name}</button>
+                `).join('')}
+            `;
+        }
+
+        function renderCategoryOptions() {
+            const select = document.getElementById('workCategory');
+            select.innerHTML = categories.map(cat => `
+                <option value="${cat.id}">${cat.name}</option>
+            `).join('');
+        }
+
+        function openCategoryManager() {
+            renderCategoryManageList();
+            document.getElementById('categoryModalOverlay').classList.add('show');
+        }
+
+        function closeCategoryManager() {
+            document.getElementById('categoryModalOverlay').classList.remove('show');
+        }
+
+        function renderCategoryManageList() {
+            const list = document.getElementById('categoryManageList');
+            list.innerHTML = categories.map(cat => {
+                const workCount = works.filter(w => w.category === cat.id).length;
+                return `
+                    <div class="category-manage-item">
+                        <div class="cat-info">
+                            <div class="color-dot cat-${cat.color}"></div>
+                            <span style="font-weight: 500; color: var(--text-primary);">${cat.name}</span>
+                            <span style="font-size: 0.75rem; color: var(--text-secondary);">${workCount} 个作品</span>
+                        </div>
+                        <button class="delete-btn" onclick="deleteCategory('${cat.id}')" title="删除分类">🗑️</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function selectColor(el) {
+            document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedColor = el.dataset.color;
+        }
+
+        function addCategory() {
+            const name = document.getElementById('newCategoryName').value.trim();
+            if (!name) {
+                alert('请输入分类名称');
+                return;
+            }
+
+            const id = 'cat_' + Date.now();
+            categories.push({ id, name, color: selectedColor });
+            saveCategories();
+            renderFilterTabs();
+            renderCategoryOptions();
+            renderCategoryManageList();
+
+            document.getElementById('newCategoryName').value = '';
+        }
+
+        function deleteCategory(id) {
+            const workCount = works.filter(w => w.category === id).length;
+            if (workCount > 0) {
+                alert(`该分类下还有 ${workCount} 个作品，请先移动或删除这些作品后再删除分类`);
+                return;
+            }
+
+            if (confirm('确定要删除这个分类吗？')) {
+                categories = categories.filter(c => c.id !== id);
+                saveCategories();
+                renderFilterTabs();
+                renderCategoryOptions();
+                renderCategoryManageList();
+            }
+        }
+
+        function handleAvatarUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (file.size > 2 * 1024 * 1024) {
+                alert('图片大小不能超过 2MB，请选择更小的图片');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const avatarData = event.target.result;
+                localStorage.setItem('portfolioAvatar', avatarData);
+                document.getElementById('avatarImg').src = avatarData;
+                document.getElementById('avatarImg').style.display = 'block';
+                document.getElementById('avatarPlaceholder').style.display = 'none';
+            };
+            reader.readAsDataURL(file);
         }
 
         function filterWorks(filter) {
@@ -1147,7 +1396,7 @@
 
             currentViewId = id;
             document.getElementById('viewContent').innerHTML = `
-                <span class="view-category ${work.category}">${getCategoryName(work.category)}</span>
+                <span class="view-category cat-${getCategoryColor(work.category)}">${getCategoryName(work.category)}</span>
                 <h2>${work.title}</h2>
                 <div class="view-date">${work.date}</div>
                 <div class="view-body">${work.content}</div>
