@@ -819,6 +819,133 @@
             transform: scale(1.15);
         }
 
+        .sync-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 16px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 16px var(--shadow-soft);
+            font-size: 0.8rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 100;
+            transition: opacity 0.3s;
+        }
+
+        .sync-status .sync-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #2ECC71;
+        }
+
+        .sync-status.syncing .sync-dot {
+            background: #E6A23C;
+            animation: pulse 1.5s infinite;
+        }
+
+        .sync-status.error .sync-dot {
+            background: #E74C3A;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .setup-wizard {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .setup-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .setup-card h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+
+        .setup-card p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .setup-card ol {
+            padding-left: 24px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .setup-card code {
+            background: rgba(93, 78, 55, 0.1);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+        }
+
+        .sync-settings-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 380px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 16px var(--shadow-soft);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            z-index: 100;
+            transition: all 0.2s;
+        }
+
+        .sync-settings-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px var(--shadow-medium);
+        }
+
+        @media (max-width: 768px) {
+            .sync-settings-btn {
+                left: 20px;
+            }
+        }
+
         @media (max-width: 1024px) {
             .sidebar {
                 width: 300px;
@@ -859,6 +986,66 @@
     </style>
 </head>
 <body>
+    <div class="setup-wizard" id="setupWizard" style="display: none;">
+        <div class="setup-card">
+            <h2>🌐 开启云同步</h2>
+            <p>让你的作品集在<strong>任何设备</strong>打开都能看到相同内容，并随编辑实时更新。</p>
+            <p>需要你提供一个 <strong>GitHub Personal Access Token</strong>，用来保存你的数据到云端。</p>
+            <ol>
+                <li>打开 <code>github.com/settings/tokens</code></li>
+                <li>点击 <code>Generate new token (classic)</code></li>
+                <li>勾选 <code>gist</code> 权限</li>
+                <li>复制生成的 Token 粘贴到下面</li>
+            </ol>
+            <div class="form-group">
+                <input type="password" id="setupToken" placeholder="粘贴你的 GitHub Token（ghp_xxxxx）">
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="skipSetup()">仅本地使用</button>
+                <button type="button" class="btn btn-primary" onclick="finishSetup()">开启云同步</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="sync-status" id="syncStatus" style="display: none;">
+        <span class="sync-dot"></span>
+        <span id="syncStatusText">已同步</span>
+    </div>
+
+    <button class="sync-settings-btn" id="syncSettingsBtn" style="display: none;" onclick="openSyncSettings()" title="同步设置">☁️</button>
+
+    <div class="modal-overlay" id="syncModalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>同步设置</h2>
+                <button class="modal-close" onclick="closeSyncSettings()">✕</button>
+            </div>
+            <div id="syncModalContent">
+                <div class="form-group">
+                    <label>当前状态</label>
+                    <div id="syncInfo" style="padding: 12px; background: rgba(255,255,255,0.5); border-radius: 12px; font-size: 0.9rem; color: var(--text-primary);">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Gist ID</label>
+                    <input type="text" id="syncGistId" placeholder="用于标识云端数据存储位置">
+                </div>
+                <div class="form-group">
+                    <label>GitHub Token</label>
+                    <input type="password" id="syncToken" placeholder="ghp_xxxxxxxx">
+                </div>
+                <div class="form-group">
+                    <label>自动同步间隔（秒）</label>
+                    <input type="number" id="syncInterval" min="5" max="600" value="30">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="logoutSync()">退出登录</button>
+                    <button type="button" class="btn btn-primary" onclick="saveSyncSettings()">保存设置</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <aside class="sidebar glass">
             <div class="profile-section">
@@ -1098,10 +1285,19 @@
 
     <script>
         let works = [];
+        let education = [];
+        let profile = {};
         let currentViewId = null;
         let isSorting = false;
         let categories = [];
         let selectedColor = 'blue';
+        let syncTimer = null;
+        let isCloudEnabled = false;
+        let gistId = '6965aaaaed1d6b1828326661b1fd3166';
+        let githubToken = '';
+        let syncInterval = 30;
+        let lastSyncedAt = null;
+        let isSyncing = false;
 
         const defaultCategories = [
             { id: 'prose', name: '散文', color: 'blue' },
@@ -1118,64 +1314,247 @@
             location: '城市名称'
         };
 
-        const defaultEducation = [
-            { school: '学校名称', degree: '学历 / 专业', period: '20XX - 20XX' }
-        ];
-
-        function loadData() {
-            const savedWorks = localStorage.getItem('portfolioWorks');
-            const savedProfile = localStorage.getItem('portfolioProfile');
-            const savedEducation = localStorage.getItem('portfolioEducation');
-            const savedCategories = localStorage.getItem('portfolioCategories');
-            const savedAvatar = localStorage.getItem('portfolioAvatar');
-
-            if (savedWorks) {
-                works = JSON.parse(savedWorks);
-            }
-
-            if (savedCategories) {
-                categories = JSON.parse(savedCategories);
-            } else {
-                categories = [...defaultCategories];
-                localStorage.setItem('portfolioCategories', JSON.stringify(categories));
-            }
-
-            if (savedAvatar) {
-                document.getElementById('avatarImg').src = savedAvatar;
-                document.getElementById('avatarImg').style.display = 'block';
-                document.getElementById('avatarPlaceholder').style.display = 'none';
-            }
-
-            if (savedProfile) {
-                const profile = JSON.parse(savedProfile);
-                document.getElementById('profileName').textContent = profile.name;
-                document.getElementById('profileTitle').textContent = profile.title;
-                document.getElementById('profileBio').textContent = profile.bio || '点击编辑个人简介...';
-                document.getElementById('infoEmail').textContent = profile.email;
-                document.getElementById('infoPhone').textContent = profile.phone;
-                document.getElementById('infoLocation').textContent = profile.location;
-            }
-
-            if (savedEducation) {
-                const education = JSON.parse(savedEducation);
-                renderEducation(education);
-            } else {
-                renderEducation(defaultEducation);
-            }
-
-            renderFilterTabs();
-            renderCategoryOptions();
+        function getData() {
+            return {
+                profile,
+                education,
+                works,
+                categories,
+                updatedAt: new Date().toISOString()
+            };
         }
 
-        function saveWorks() {
-            localStorage.setItem('portfolioWorks', JSON.stringify(works));
+        function applyData(data) {
+            profile = data.profile || {...defaultProfile};
+            education = data.education || [];
+            works = data.works || [];
+            categories = data.categories && data.categories.length > 0
+                ? data.categories
+                : [...defaultCategories];
+        }
+
+        async function syncFromCloud() {
+            if (!isCloudEnabled || isSyncing) return;
+            isSyncing = true;
+            updateSyncStatus('syncing', '同步中...');
+
+            try {
+                const response = await fetch(`https://api.github.com/gists/${gistId}`);
+                if (!response.ok) throw new Error('拉取失败');
+                const data = await response.json();
+                if (data.files && data.files['portfolio-data.json']) {
+                    const content = data.files['portfolio-data.json'].content;
+                    const parsed = JSON.parse(content);
+                    applyData(parsed);
+                    saveLocal();
+                    refreshAllUI();
+                    lastSyncedAt = new Date();
+                    updateSyncStatus('ok', '已同步');
+                }
+            } catch (err) {
+                console.error('同步失败:', err);
+                updateSyncStatus('error', '同步失败');
+            } finally {
+                isSyncing = false;
+            }
+        }
+
+        async function syncToCloud() {
+            if (!isCloudEnabled || !githubToken || isSyncing) return;
+            isSyncing = true;
+            updateSyncStatus('syncing', '保存中...');
+
+            try {
+                const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `token ${githubToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        files: {
+                            'portfolio-data.json': {
+                                content: JSON.stringify(getData(), null, 2)
+                            }
+                        }
+                    })
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => ({}));
+                    throw new Error(errData.message || '保存失败');
+                }
+
+                lastSyncedAt = new Date();
+                updateSyncStatus('ok', '已同步');
+            } catch (err) {
+                console.error('保存到云端失败:', err);
+                updateSyncStatus('error', '保存失败');
+                alert('保存到云端失败：' + err.message + '\n请检查网络或 Token 是否有效。');
+            } finally {
+                isSyncing = false;
+            }
+        }
+
+        function saveLocal() {
+            localStorage.setItem('portfolioData', JSON.stringify(getData()));
+        }
+
+        function loadLocal() {
+            const saved = localStorage.getItem('portfolioData');
+            if (saved) {
+                try {
+                    applyData(JSON.parse(saved));
+                } catch (e) {
+                    console.error('本地数据解析失败', e);
+                }
+            }
+        }
+
+        function persist() {
+            saveLocal();
+            if (isCloudEnabled) {
+                if (syncTimer) clearTimeout(syncTimer);
+                syncTimer = setTimeout(syncToCloud, 1500);
+            }
+            refreshAllUI();
+        }
+
+        function refreshAllUI() {
+            renderProfile();
+            renderEducation(education);
+            renderFilterTabs();
+            renderCategoryOptions();
+            renderWorks(getActiveFilter());
+        }
+
+        function updateSyncStatus(state, text) {
+            const el = document.getElementById('syncStatus');
+            const textEl = document.getElementById('syncStatusText');
+            if (!el) return;
+            if (!isCloudEnabled) {
+                el.style.display = 'none';
+                return;
+            }
+            el.style.display = 'flex';
+            el.classList.remove('syncing', 'error');
+            if (state === 'syncing') el.classList.add('syncing');
+            if (state === 'error') el.classList.add('error');
+            textEl.textContent = text;
+        }
+
+        function loadData() {
+            const token = localStorage.getItem('portfolioToken');
+            const savedGistId = localStorage.getItem('portfolioGistId');
+            const savedInterval = localStorage.getItem('portfolioSyncInterval');
+            const setupDone = localStorage.getItem('portfolioSetupDone');
+
+            if (token) {
+                githubToken = token;
+                isCloudEnabled = true;
+            }
+            if (savedGistId) gistId = savedGistId;
+            if (savedInterval) syncInterval = parseInt(savedInterval) || 30;
+
+            loadLocal();
+
+            if (isCloudEnabled) {
+                document.getElementById('syncSettingsBtn').style.display = 'flex';
+                syncFromCloud();
+                setInterval(syncFromCloud, syncInterval * 1000);
+            } else if (!setupDone) {
+                document.getElementById('setupWizard').style.display = 'flex';
+            } else {
+                document.getElementById('syncSettingsBtn').style.display = 'flex';
+            }
+        }
+
+        function finishSetup() {
+            const token = document.getElementById('setupToken').value.trim();
+            if (!token) {
+                alert('请输入 GitHub Token');
+                return;
+            }
+            githubToken = token;
+            isCloudEnabled = true;
+            localStorage.setItem('portfolioToken', token);
+            localStorage.setItem('portfolioGistId', gistId);
+            localStorage.setItem('portfolioSyncInterval', syncInterval.toString());
+            localStorage.setItem('portfolioSetupDone', '1');
+            document.getElementById('setupWizard').style.display = 'none';
+            document.getElementById('syncSettingsBtn').style.display = 'flex';
+            updateSyncStatus('syncing', '初始化同步...');
+            syncFromCloud().then(() => {
+                setInterval(() => syncFromCloud(), syncInterval * 1000);
+            });
+        }
+
+        function skipSetup() {
+            localStorage.setItem('portfolioSetupDone', '1');
+            document.getElementById('setupWizard').style.display = 'none';
+            document.getElementById('syncSettingsBtn').style.display = 'flex';
+        }
+
+        function openSyncSettings() {
+            document.getElementById('syncGistId').value = gistId;
+            document.getElementById('syncToken').value = githubToken;
+            document.getElementById('syncInterval').value = syncInterval;
+            const statusText = isCloudEnabled
+                ? `已连接到云端 Gist<br>最后同步：${lastSyncedAt ? lastSyncedAt.toLocaleString('zh-CN') : '尚未同步'}`
+                : '当前为本地模式';
+            document.getElementById('syncInfo').innerHTML = statusText;
+            document.getElementById('syncModalOverlay').classList.add('show');
+        }
+
+        function closeSyncSettings() {
+            document.getElementById('syncModalOverlay').classList.remove('show');
+        }
+
+        function saveSyncSettings() {
+            const newToken = document.getElementById('syncToken').value.trim();
+            const newGistId = document.getElementById('syncGistId').value.trim();
+            const newInterval = parseInt(document.getElementById('syncInterval').value) || 30;
+
+            if (newToken) {
+                githubToken = newToken;
+                localStorage.setItem('portfolioToken', newToken);
+            }
+            if (newGistId) {
+                gistId = newGistId;
+                localStorage.setItem('portfolioGistId', newGistId);
+            }
+            syncInterval = newInterval;
+            localStorage.setItem('portfolioSyncInterval', syncInterval.toString());
+            isCloudEnabled = !!githubToken;
+
+            if (isCloudEnabled) {
+                syncFromCloud();
+            }
+            closeSyncSettings();
+        }
+
+        function logoutSync() {
+            if (!confirm('确定要退出云同步吗？退出后数据将仅保存在本设备。')) return;
+            githubToken = '';
+            isCloudEnabled = false;
+            localStorage.removeItem('portfolioToken');
+            closeSyncSettings();
+            updateSyncStatus('ok', '本地模式');
+        }
+
+        function renderProfile() {
+            document.getElementById('profileName').textContent = profile.name;
+            document.getElementById('profileTitle').textContent = profile.title;
+            document.getElementById('profileBio').textContent = profile.bio || '点击编辑个人简介...';
+            document.getElementById('infoEmail').textContent = profile.email;
+            document.getElementById('infoPhone').textContent = profile.phone;
+            document.getElementById('infoLocation').textContent = profile.location;
         }
 
         function renderWorks(filter = 'all') {
             const grid = document.getElementById('worksGrid');
-            
-            const filteredWorks = filter === 'all' 
-                ? works 
+            const filteredWorks = filter === 'all'
+                ? works
                 : works.filter(w => w.category === filter);
 
             if (filteredWorks.length === 0) {
@@ -1190,13 +1569,13 @@
             }
 
             grid.innerHTML = filteredWorks.map((work, index) => `
-                <div class="work-card glass" 
-                     draggable="${isSorting ? 'true' : 'false'}" 
+                <div class="work-card glass"
+                     draggable="${isSorting ? 'true' : 'false'}"
                      ondragstart="dragWork(event, ${index})"
                      onclick="viewWork('${work.id}')">
                     <span class="work-category cat-${getCategoryColor(work.category)}">${getCategoryName(work.category)}</span>
-                    <h3 class="work-title">${work.title}</h3>
-                    <p class="work-excerpt">${work.content}</p>
+                    <h3 class="work-title">${escapeHtml(work.title)}</h3>
+                    <p class="work-excerpt">${escapeHtml(work.content)}</p>
                     <div class="work-meta">
                         <span>${work.date}</span>
                         <div class="actions">
@@ -1206,6 +1585,16 @@
                     </div>
                 </div>
             `).join('');
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
         }
 
         function getCategoryName(categoryId) {
@@ -1218,17 +1607,13 @@
             return cat ? cat.color : 'blue';
         }
 
-        function saveCategories() {
-            localStorage.setItem('portfolioCategories', JSON.stringify(categories));
-        }
-
         function renderFilterTabs() {
             const tabsContainer = document.getElementById('filterTabs');
             const activeFilter = getActiveFilter();
             tabsContainer.innerHTML = `
                 <button class="filter-tab ${activeFilter === 'all' ? 'active' : ''}" data-filter="all" onclick="filterWorks('all')">全部</button>
                 ${categories.map(cat => `
-                    <button class="filter-tab ${activeFilter === cat.id ? 'active' : ''}" data-filter="${cat.id}" onclick="filterWorks('${cat.id}')">${cat.name}</button>
+                    <button class="filter-tab ${activeFilter === cat.id ? 'active' : ''}" data-filter="${cat.id}" onclick="filterWorks('${cat.id}')">${escapeHtml(cat.name)}</button>
                 `).join('')}
             `;
         }
@@ -1236,7 +1621,7 @@
         function renderCategoryOptions() {
             const select = document.getElementById('workCategory');
             select.innerHTML = categories.map(cat => `
-                <option value="${cat.id}">${cat.name}</option>
+                <option value="${cat.id}">${escapeHtml(cat.name)}</option>
             `).join('');
         }
 
@@ -1257,7 +1642,7 @@
                     <div class="category-manage-item">
                         <div class="cat-info">
                             <div class="color-dot cat-${cat.color}"></div>
-                            <span style="font-weight: 500; color: var(--text-primary);">${cat.name}</span>
+                            <span style="font-weight: 500; color: var(--text-primary);">${escapeHtml(cat.name)}</span>
                             <span style="font-size: 0.75rem; color: var(--text-secondary);">${workCount} 个作品</span>
                         </div>
                         <button class="delete-btn" onclick="deleteCategory('${cat.id}')" title="删除分类">🗑️</button>
@@ -1278,14 +1663,10 @@
                 alert('请输入分类名称');
                 return;
             }
-
             const id = 'cat_' + Date.now();
             categories.push({ id, name, color: selectedColor });
-            saveCategories();
-            renderFilterTabs();
-            renderCategoryOptions();
+            persist();
             renderCategoryManageList();
-
             document.getElementById('newCategoryName').value = '';
         }
 
@@ -1295,12 +1676,9 @@
                 alert(`该分类下还有 ${workCount} 个作品，请先移动或删除这些作品后再删除分类`);
                 return;
             }
-
             if (confirm('确定要删除这个分类吗？')) {
                 categories = categories.filter(c => c.id !== id);
-                saveCategories();
-                renderFilterTabs();
-                renderCategoryOptions();
+                persist();
                 renderCategoryManageList();
             }
         }
@@ -1308,17 +1686,15 @@
         function handleAvatarUpload(e) {
             const file = e.target.files[0];
             if (!file) return;
-
             if (file.size > 2 * 1024 * 1024) {
-                alert('图片大小不能超过 2MB，请选择更小的图片');
+                alert('图片大小不能超过 2MB');
                 return;
             }
-
             const reader = new FileReader();
             reader.onload = function(event) {
-                const avatarData = event.target.result;
-                localStorage.setItem('portfolioAvatar', avatarData);
-                document.getElementById('avatarImg').src = avatarData;
+                profile.avatar = event.target.result;
+                localStorage.setItem('portfolioAvatar', profile.avatar);
+                document.getElementById('avatarImg').src = profile.avatar;
                 document.getElementById('avatarImg').style.display = 'block';
                 document.getElementById('avatarPlaceholder').style.display = 'none';
             };
@@ -1343,7 +1719,6 @@
         function editWork(id) {
             const work = works.find(w => w.id === id);
             if (!work) return;
-
             document.getElementById('modalTitle').textContent = '编辑作品';
             document.getElementById('workId').value = work.id;
             document.getElementById('workTitle').value = work.title;
@@ -1355,7 +1730,6 @@
 
         function saveWork(e) {
             e.preventDefault();
-            
             const id = document.getElementById('workId').value;
             const title = document.getElementById('workTitle').value;
             const category = document.getElementById('workCategory').value;
@@ -1364,42 +1738,31 @@
 
             if (id) {
                 const index = works.findIndex(w => w.id === id);
-                if (index >= 0) {
-                    works[index] = { ...works[index], title, category, date, content };
-                }
+                if (index >= 0) works[index] = { ...works[index], title, category, date, content };
             } else {
-                works.push({
-                    id: Date.now().toString(),
-                    title,
-                    category,
-                    date,
-                    content
-                });
+                works.push({ id: Date.now().toString(), title, category, date, content });
             }
 
-            saveWorks();
+            persist();
             closeModal();
-            renderWorks(getActiveFilter());
         }
 
         function deleteWork(id) {
             if (confirm('确定要删除这个作品吗？')) {
                 works = works.filter(w => w.id !== id);
-                saveWorks();
-                renderWorks(getActiveFilter());
+                persist();
             }
         }
 
         function viewWork(id) {
             const work = works.find(w => w.id === id);
             if (!work) return;
-
             currentViewId = id;
             document.getElementById('viewContent').innerHTML = `
                 <span class="view-category cat-${getCategoryColor(work.category)}">${getCategoryName(work.category)}</span>
-                <h2>${work.title}</h2>
+                <h2>${escapeHtml(work.title)}</h2>
                 <div class="view-date">${work.date}</div>
-                <div class="view-body">${work.content}</div>
+                <div class="view-body">${escapeHtml(work.content)}</div>
             `;
             document.getElementById('viewModalOverlay').classList.add('show');
         }
@@ -1411,9 +1774,7 @@
 
         function editCurrentWork() {
             closeViewModal();
-            if (currentViewId) {
-                editWork(currentViewId);
-            }
+            if (currentViewId) editWork(currentViewId);
         }
 
         function closeModal() {
@@ -1445,32 +1806,31 @@
             e.preventDefault();
             const sourceIndex = parseInt(e.dataTransfer.getData('text/plain'));
             const targetElement = e.target.closest('.work-card');
-            
             if (!targetElement || !isSorting) return;
-
             const targetIndex = Array.from(document.querySelectorAll('.work-card')).indexOf(targetElement);
-            
             if (sourceIndex !== targetIndex) {
                 const [removed] = works.splice(sourceIndex, 1);
                 works.splice(targetIndex, 0, removed);
-                saveWorks();
-                renderWorks(getActiveFilter());
+                persist();
             }
-
             document.querySelector('.dragging')?.classList.remove('dragging');
         }
 
-        function renderEducation(education) {
+        function renderEducation() {
             const list = document.getElementById('educationList');
+            if (education.length === 0) {
+                list.innerHTML = `<div style="text-align: center; padding: 20px; color: var(--text-secondary); font-size: 0.85rem;">点击下方按钮添加教育经历</div>`;
+                return;
+            }
             list.innerHTML = education.map((edu, index) => `
                 <div class="education-item">
                     <div class="edit-controls">
                         <button class="edit-btn" onclick="editEducation(${index})">✏️</button>
                         <button class="delete-btn" onclick="deleteEducation(${index})">🗑️</button>
                     </div>
-                    <div class="edu-school">${edu.school}</div>
-                    <div class="edu-degree">${edu.degree}</div>
-                    <div class="edu-period">${edu.period}</div>
+                    <div class="edu-school">${escapeHtml(edu.school)}</div>
+                    <div class="edu-degree">${escapeHtml(edu.degree)}</div>
+                    <div class="edu-period">${escapeHtml(edu.period)}</div>
                 </div>
             `).join('');
         }
@@ -1483,10 +1843,8 @@
         }
 
         function editEducation(index) {
-            const education = JSON.parse(localStorage.getItem('portfolioEducation') || JSON.stringify(defaultEducation));
             const edu = education[index];
             if (!edu) return;
-
             document.getElementById('eduModalTitle').textContent = '编辑教育经历';
             document.getElementById('eduIndex').value = index;
             document.getElementById('eduSchool').value = edu.school;
@@ -1497,31 +1855,24 @@
 
         function saveEducation(e) {
             e.preventDefault();
-            
             const index = document.getElementById('eduIndex').value;
             const school = document.getElementById('eduSchool').value;
             const degree = document.getElementById('eduDegree').value;
             const period = document.getElementById('eduPeriod').value;
-
-            let education = JSON.parse(localStorage.getItem('portfolioEducation') || JSON.stringify(defaultEducation));
 
             if (index !== '') {
                 education[index] = { school, degree, period };
             } else {
                 education.push({ school, degree, period });
             }
-
-            localStorage.setItem('portfolioEducation', JSON.stringify(education));
-            renderEducation(education);
+            persist();
             closeEducationModal();
         }
 
         function deleteEducation(index) {
             if (confirm('确定要删除这条教育经历吗？')) {
-                let education = JSON.parse(localStorage.getItem('portfolioEducation') || JSON.stringify(defaultEducation));
                 education.splice(index, 1);
-                localStorage.setItem('portfolioEducation', JSON.stringify(education));
-                renderEducation(education);
+                persist();
             }
         }
 
@@ -1530,7 +1881,6 @@
         }
 
         function openEditProfile() {
-            const profile = JSON.parse(localStorage.getItem('portfolioProfile') || JSON.stringify(defaultProfile));
             document.getElementById('editName').value = profile.name;
             document.getElementById('editTitle').value = profile.title;
             document.getElementById('editBio').value = profile.bio || '';
@@ -1539,22 +1889,13 @@
 
         function saveProfile(e) {
             e.preventDefault();
-            
-            const profile = {
+            profile = {
+                ...profile,
                 name: document.getElementById('editName').value,
                 title: document.getElementById('editTitle').value,
-                bio: document.getElementById('editBio').value,
-                email: document.getElementById('infoEmail').textContent,
-                phone: document.getElementById('infoPhone').textContent,
-                location: document.getElementById('infoLocation').textContent
+                bio: document.getElementById('editBio').value
             };
-
-            localStorage.setItem('portfolioProfile', JSON.stringify(profile));
-            
-            document.getElementById('profileName').textContent = profile.name;
-            document.getElementById('profileTitle').textContent = profile.title;
-            document.getElementById('profileBio').textContent = profile.bio || '点击编辑个人简介...';
-            
+            persist();
             closeProfileModal();
         }
 
@@ -1564,8 +1905,6 @@
 
         function openEditInfo(field) {
             const labels = { email: '邮箱', phone: '电话', location: '所在地' };
-            const profile = JSON.parse(localStorage.getItem('portfolioProfile') || JSON.stringify(defaultProfile));
-            
             document.getElementById('infoModalTitle').textContent = `编辑${labels[field]}`;
             document.getElementById('infoLabel').textContent = labels[field];
             document.getElementById('infoField').value = field;
@@ -1575,15 +1914,10 @@
 
         function saveInfo(e) {
             e.preventDefault();
-            
             const field = document.getElementById('infoField').value;
             const value = document.getElementById('infoValue').value;
-            
-            let profile = JSON.parse(localStorage.getItem('portfolioProfile') || JSON.stringify(defaultProfile));
             profile[field] = value;
-            localStorage.setItem('portfolioProfile', JSON.stringify(profile));
-            
-            document.getElementById(`info${field.charAt(0).toUpperCase() + field.slice(1)}`).textContent = value;
+            persist();
             closeInfoModal();
         }
 
@@ -1598,7 +1932,8 @@
         });
 
         loadData();
-        renderWorks();
+        refreshAllUI();
+        renderProfile();
     </script>
 </body>
 </html>
